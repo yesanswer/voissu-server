@@ -1,2 +1,11 @@
+.DS_Store
+*~
+*.pyc
+.sass-cache
+
+*.swp
+
+# Virtualenv
 venv*/
+
 .idea/

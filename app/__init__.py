@@ -1,56 +1,47 @@
+import json
 import uuid
 
 import gevent
+from app.app import App
+from app.channel import Channel
+from app.user import User
 from gevent.pool import Pool
-from gevent.queue import Queue
 from gevent.server import StreamServer
 
-users = {}
+apps = {}
 
-
-def broadcast(msg):
-    msg = '{}\n'.format(msg)
-    for v in users.values():
-        v.put(msg)
-
-
-def reader(username, f):
-    for l in f:
-        msg = '{}> {}'.format(username, l.strip())
-        print("[system] read from socket({}) : {}", f, msg)
-        broadcast(msg)
-
-
-def writer(q, sock):
-    while True:
-        msg = q.get()
-        if isinstance(msg, str):
-            encoded = msg.encode('utf-8')
-            sock.sendall(encoded)
-        elif isinstance(msg, bytes):
-            sock.sendall(msg)
+app1 = App('app1')
+apps[app1.id] = app1
 
 
 def gatekeeper(socket, address):
-    f = socket.makefile()
+    sock_file = socket.makefile()
 
-    name = uuid.uuid4()
+    data_login = json.loads(sock_file.readline())
+    app_id = data_login['app_id']
+    uid = data_login['uid']
 
-    print("[system] new user {} - socket({})".format(name, socket))
+    if app_id not in apps:
+        return
 
-    socket.sendall('your name is {}'.format(name).encode('utf-8'))
-    broadcast('[system] %s joined from %s.' % (name, address[0]))
+    application = apps[app_id]
+
+    prev_connected_user = application.get_user(uid)
+    if prev_connected_user is not None:
+        # close prev connected user
+        pass
+
+    new_user = User(uid=uid, guid=uuid.uuid4(), sock=socket, sock_file=sock_file, owner_app=application)
+    application.enter_user(new_user)
+
+    new_user.sock.sendall(json.dumps({'success': True, 'guid': str(new_user.guid)}).encode('utf-8'))
 
     try:
-        q = Queue()
-        users[name] = q
-
-        r = gevent.spawn(reader, name, f)
-        w = gevent.spawn(writer, q, socket)
+        r = gevent.spawn(new_user.reader)
+        w = gevent.spawn(new_user.writer)
         gevent.joinall([r, w])
     finally:
-        del (users[name])
-        broadcast('[system] %s left the chat.' % name)
+        application.exit_user(new_user)
 
 
 pool = Pool(10000)

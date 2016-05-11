@@ -22,7 +22,7 @@ data_login = {
 }
 clientSocket.send('{}\n'.format(json.dumps(data_login)).encode('utf-8'))
 
-while True:
-    data = clientSocket.recv(BUFSIZE)
-    print(data.decode('utf-8'))
-    time.sleep(1)
+with clientSocket.makefile() as f:
+    for line in f:
+        line = line.rstrip()
+        print('{} {}'.format(len(line), line))

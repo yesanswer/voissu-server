@@ -28,18 +28,15 @@ def gatekeeper(socket, address):
 
     prev_connected_user = application.get_user(uid)
     if prev_connected_user is not None:
-        # close prev connected user
-        pass
+        application.exit_user(prev_connected_user)
 
     new_user = User(uid=uid, guid=uuid.uuid4(), sock=socket, sock_file=sock_file, owner_app=application)
     application.enter_user(new_user)
 
-    new_user.sock.sendall(json.dumps({'success': True, 'guid': str(new_user.guid)}).encode('utf-8'))
+    new_user.sock.sendall('{}\n'.format(json.dumps({'success': True, 'guid': str(new_user.guid)})).encode('utf-8'))
 
     try:
-        r = gevent.spawn(new_user.reader)
-        w = gevent.spawn(new_user.writer)
-        gevent.joinall([r, w])
+        gevent.joinall(new_user.greenlets)
     finally:
         application.exit_user(new_user)
 

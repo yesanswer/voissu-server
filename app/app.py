@@ -9,7 +9,16 @@ class App:
         print('[system][{}] new connected user uid : {}'.format(self.id, user.uid))
 
     def exit_user(self, user):
-        del(self.users[user.uid])
+        user.disconnect()
+        if user.uid in self.users:
+            if self.users[user.uid].guid == user.guid:
+                del(self.users[user.uid])
+
+    def exit_user_by_id(self, user_uid):
+        if user_uid not in self.users:
+            raise KeyError
+
+        self.exit_user(self.users[user_uid])
 
     def enter_channel(self):
         pass

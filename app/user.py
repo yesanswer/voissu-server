@@ -1,3 +1,4 @@
+import gevent
 from gevent.queue import Queue
 
 
@@ -9,6 +10,9 @@ class User:
         self.sock_file = sock_file
         self.gevent_queue = Queue()
         self.owner_app = owner_app
+        self.closed = False
+        self.greenlets = [gevent.spawn(self.reader),
+                          gevent.spawn(self.writer)]
 
     def reader(self):
         for line in self.sock_file:
@@ -17,7 +21,7 @@ class User:
     def writer(self):
         while True:
             msg = self.gevent_queue.get()
-            print(msg)
+            print('[{}] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
 
             if isinstance(msg, str):
                 encoded = msg.encode('utf-8')
@@ -26,4 +30,7 @@ class User:
                 self.sock.sendall(msg)
 
     def disconnect(self):
-        pass
+        if not self.closed:
+            self.sock.close()
+            self.closed = True
+            gevent.killall(self.greenlets)

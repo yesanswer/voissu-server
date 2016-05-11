@@ -1,4 +1,4 @@
-class App:
+class Application:
     def __init__(self, id):
         self.id = id
         self.channels = dict()

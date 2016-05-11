@@ -1,4 +1,5 @@
-from app import app
+from app import control_server, relay_server
 
 if __name__ == '__main__':
-    app.serve_forever()
+    relay_server.start()
+    control_server.start_forever()

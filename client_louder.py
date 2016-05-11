@@ -26,9 +26,11 @@ data = clientSocket.recv(BUFSIZE)
 print(data.decode('utf-8'))
 
 keyword = sys.argv[1]
+count = 0
 
 while True:
-    line = '{}\n'.format(keyword)
+    line = '{}{}\n'.format(keyword, count)
     clientSocket.send(line.encode('utf-8'))
     print('sent')
     time.sleep(1)
+    count += 1

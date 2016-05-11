@@ -25,4 +25,6 @@ clientSocket.send('{}\n'.format(json.dumps(data_login)).encode('utf-8'))
 with clientSocket.makefile() as f:
     for line in f:
         line = line.rstrip()
+        if len(line) == 0:
+            break
         print('{} {}'.format(len(line), line))

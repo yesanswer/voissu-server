@@ -31,6 +31,7 @@ class User:
 
     def disconnect(self):
         if not self.closed:
-            self.sock.close()
-            self.closed = True
             gevent.killall(self.greenlets)
+            self.sock.close()
+            self.sock_file.close()
+            self.closed = True

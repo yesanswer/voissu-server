@@ -22,6 +22,8 @@ def gatekeeper(socket, address):
     uid = data_login['uid']
 
     if app_id not in apps:
+        socket.close()
+        sock_file.close()
         return
 
     application = apps[app_id]

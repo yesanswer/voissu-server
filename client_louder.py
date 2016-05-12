@@ -1,18 +1,15 @@
 import sys
-import time
 import json
-from socket import *
+import time
+import socket
 
-HOST = '127.0.0.1'
-PORT = 10000
-BUFSIZE = 1024
-ADDR = (HOST, PORT)
+BUF_SIZE = 1024
 
 try:
-    clientSocket = socket(AF_INET, SOCK_STREAM)
-    clientSocket.connect(ADDR)
+    sock_channel_control = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock_channel_control.connect(('127.0.0.1', 10000))
 except ConnectionError as e:
-    print('채팅 서버(%s:%s)에 연결 할 수 없습니다.' % ADDR)
+    print('failed to connect control channel')
     sys.exit()
 
 data_login = {
@@ -20,17 +17,25 @@ data_login = {
     'app_id': 'app1',
     'uid': 'user1'
 }
-clientSocket.send('{}\n'.format(json.dumps(data_login)).encode('utf-8'))
+sock_channel_control.send('{}\n'.format(json.dumps(data_login)).encode('utf-8'))
+data = sock_channel_control.recv(BUF_SIZE).decode('utf-8')
+print(data)
 
-data = clientSocket.recv(BUFSIZE)
-print(data.decode('utf-8'))
+data_response_login = json.loads(data)
 
 keyword = sys.argv[1]
 count = 0
+guid = data_response_login['guid']
+
+address_data_channel = (data_response_login['relay_server']['ip'], data_response_login['relay_server']['port'])
+
+sock_channel_data = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:
-    line = '{}{}\n'.format(keyword, count)
-    clientSocket.send(line.encode('utf-8'))
-    print('sent')
+    word = '{}{}'.format(keyword, count)
+    data = '{} {}'.format(guid, word)
+    sock_channel_data.sendto(data.encode('utf-8'), address_data_channel)
+    print('[data] sent')
+
     time.sleep(1)
     count += 1

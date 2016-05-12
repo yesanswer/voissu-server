@@ -34,18 +34,20 @@ class ControlServer:
         if prev_connected_user is not None:
             application.exit_user(prev_connected_user)
 
-        new_user = User(uid=uid, guid=uuid.uuid4(), sock=socket, sock_file=sock_file, owner_app=application)
-        application.enter_user(new_user)
+        new_user_guid = uuid.uuid4()
 
         data_response_login = {
             'success': True,
-            'guid': str(new_user.guid),
+            'guid': str(new_user_guid),
             'relay_server': {
                 'ip': '127.0.0.1',
                 'port': 10001
             }
         }
-        new_user.sock.sendall('{}\n'.format(json.dumps(data_response_login)).encode('utf-8'))
+        socket.sendall('{}\n'.format(json.dumps(data_response_login)).encode('utf-8'))
+
+        new_user = User(uid=uid, guid=new_user_guid, sock=socket, sock_file=sock_file, owner_app=application)
+        application.enter_user(new_user)
 
         try:
             gevent.joinall(new_user.greenlets)

@@ -1,4 +1,8 @@
+import json
+
 import gevent
+from app.request_types import REQUEST_TYPE_SIGN_OUT, REQUEST_TYPE_ENTER_CHANNEL, REQUEST_TYPE_EXIT_CHANNEL, \
+    REQUEST_TYPE_PING
 from gevent.queue import Queue
 
 
@@ -16,7 +20,8 @@ class User:
 
     def reader(self):
         for line in self.sock_file:
-            self.owner_app.broadcast(line)
+            req = json.loads(line)
+            self.handle_request(req)
 
     def writer(self):
         while True:
@@ -35,3 +40,38 @@ class User:
             self.sock.close()
             self.sock_file.close()
             self.closed = True
+
+    def handle_request(self, req):
+        request_type = req['type']
+        if request_type == 1000:
+            pass
+        elif request_type == REQUEST_TYPE_SIGN_OUT:
+            self.handle_request_sign_out(req)
+            pass
+        elif request_type == REQUEST_TYPE_PING:
+            pass
+        elif request_type == REQUEST_TYPE_ENTER_CHANNEL:
+            self.handle_request_enter_channel(req)
+        elif request_type == REQUEST_TYPE_EXIT_CHANNEL:
+            self.handle_request_exit_channel(req)
+
+    def handle_request_sign_out(self, req):
+        raise NotImplemented
+
+    def handle_request_enter_channel(self, req):
+        channel_id = req['channel_id']
+        if channel_id not in self.owner_app.channels:
+            # channel not found
+            pass
+
+        channel = self.owner_app.channels[channel_id]
+        channel.enter_user(self)
+
+    def handle_request_exit_channel(self, req):
+        channel_id = req['channel_id']
+        if channel_id not in self.owner_app.channels:
+            # channel not found
+            pass
+
+        channel = self.owner_app.channels[channel_id]
+        channel.exit_user(self)

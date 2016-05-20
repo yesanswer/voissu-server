@@ -2,7 +2,8 @@ import json
 
 import gevent
 from app.request_types import REQUEST_TYPE_SIGN_OUT, REQUEST_TYPE_ENTER_CHANNEL, REQUEST_TYPE_EXIT_CHANNEL, \
-    REQUEST_TYPE_PING
+    REQUEST_TYPE_PING, REQUEST_TYPE_P2P_CONNECT_SUCCESS, REQUEST_TYPE_P2P_CONNECT_FAIL, REQUEST_TYPE_MIC_ON, \
+    REQUEST_TYPE_MIC_OFF, REQUEST_TYPE_CHECK_EXIST_CHANNEL
 from gevent.queue import Queue
 
 
@@ -54,6 +55,16 @@ class User:
             self.handle_request_enter_channel(req)
         elif request_type == REQUEST_TYPE_EXIT_CHANNEL:
             self.handle_request_exit_channel(req)
+        elif request_type == REQUEST_TYPE_P2P_CONNECT_SUCCESS:
+            pass
+        elif request_type == REQUEST_TYPE_P2P_CONNECT_FAIL:
+            pass
+        elif request_type == REQUEST_TYPE_MIC_ON:
+            pass
+        elif request_type == REQUEST_TYPE_MIC_OFF:
+            pass
+        elif request_type == REQUEST_TYPE_CHECK_EXIST_CHANNEL:
+            pass
 
     def handle_request_sign_out(self, req):
         raise NotImplemented

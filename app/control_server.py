@@ -56,4 +56,4 @@ class ControlServer:
             application.exit_user(new_user)
 
     def start_forever(self):
-        StreamServer(('127.0.0.1', 10000), self.gatekeeper, spawn=self.pool).serve_forever()
+        StreamServer(('*', 10000), self.gatekeeper, spawn=self.pool).serve_forever()

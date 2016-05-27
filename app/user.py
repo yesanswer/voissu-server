@@ -15,9 +15,15 @@ class User:
         self.sock_file = sock_file
         self.gevent_queue = Queue()
         self.owner_app = owner_app
+        self.owner_channel = None
+
+        # 아래의 두 주소는 각각 공인, 사설 udp 주소
+        self.public_address = None
+        self.private_address = None
         self.closed = False
         self.greenlets = [gevent.spawn(self.reader),
                           gevent.spawn(self.writer)]
+
 
     def reader(self):
         for line in self.sock_file:

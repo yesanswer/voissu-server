@@ -17,6 +17,7 @@ class ControlServer:
         self.apps[app1.id] = app1
 
     def gatekeeper(self, socket, address):
+        print('{} connected'.format(address))
         sock_file = socket.makefile()
 
         data_login = json.loads(sock_file.readline())

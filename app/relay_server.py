@@ -46,6 +46,10 @@ class RelayServer(DatagramServer):
         if sender.public_address is None:
             sender.public_address = address[0]
 
+        if msg.kind == 0:
+            # skip broadcasting if this message is login message
+            return
+
         broadcast_data = msg.to_bytes(sender.uid)
 
         users = sender.owner_app.users.values()

@@ -7,6 +7,7 @@ class Channel:
         self.app = app
         self.users = dict()
         self.user_list = None
+        self.user_seq = dict()
 
     def enter_user(self, new_user):
         other_users = []
@@ -70,6 +71,14 @@ class Channel:
         for user in self.user_list:
             user.gevent_queue.put(line)
 
-    def broadcast_by_relay_server(self, relay_server, data):
+    def broadcast_by_relay_server(self, relay_server, sender, msg):
+        # skip broadcast data if it's not most recent
+        if self.user_seq[sender.uid] > msg.seq:
+            return
+
+        self.user_seq[sender.uid] = msg.seq
+
+        broadcast_data = msg.to_bytes(sender.uid)
+
         for user in self.user_list:
-            relay_server.socket.sendto(data, user.public_address)
+            relay_server.socket.sendto(broadcast_data, user.public_address)

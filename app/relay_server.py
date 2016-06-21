@@ -50,7 +50,5 @@ class RelayServer(DatagramServer):
             # skip broadcasting if this message is login message
             return
 
-        broadcast_data = msg.to_bytes(sender.uid)
-
         if sender.channel:
-            sender.channel.broadcast_by_relay_server(self, broadcast_data)
+            sender.channel.broadcast_by_relay_server(self, sender, msg)

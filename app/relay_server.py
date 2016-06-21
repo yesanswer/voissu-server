@@ -44,7 +44,7 @@ class RelayServer(DatagramServer):
             return
 
         if sender.public_address is None:
-            sender.public_address = address[0]
+            sender.public_address = address
 
         if msg.kind == 0:
             # skip broadcasting if this message is login message
@@ -52,7 +52,5 @@ class RelayServer(DatagramServer):
 
         broadcast_data = msg.to_bytes(sender.uid)
 
-        users = sender.owner_app.users.values()
-        for user in users:
-            if user.public_address:
-                self.socket.sendto(broadcast_data, user.public_address)
+        if sender.channel:
+            sender.channel.broadcast_by_relay_server(self, broadcast_data)

@@ -6,20 +6,27 @@ class Channel:
         self.id = id
         self.app = app
         self.users = dict()
+        self.user_list = None
 
     def enter_user(self, new_user):
         other_users = []
         for user in self.users.values():
             message = {
                 'type': RESPONSE_TYPE_OTHER_USER_JOIN_CHANNEL,
-                'public_udp_address': new_user.public_address,
+                'public_udp_address': {
+                    'ip': new_user.public_address[0],
+                    'port': new_user.public_address[1]
+                },
                 'private_udp_address': new_user.private_address
             }
             user.gevent_queue.put(message)
 
             other_users.append({
                 'uid': user.uid,
-                'public_udp_address': user.public_address,
+                'public_udp_address': {
+                    'ip': user.public_address[0],
+                    'port': user.public_address[1]
+                },
                 'private_udp_address': user.private_address
             })
 
@@ -29,6 +36,9 @@ class Channel:
         })
 
         self.users[new_user.uid] = new_user
+        self.user_list = self.users.values()
+
+        new_user.channel = self
         # TODO : support hole punching and make connection of data channel
 
     def exit_user(self, exit_user):
@@ -41,8 +51,12 @@ class Channel:
                 'type': RESPONSE_TYPE_EXIT_CHANNEL
             })
 
+        self.user_list = self.users.values()
+
         exit_user.public_address = None
         exit_user.private_address = None
+
+        exit_user.channel = None
 
         # TODO : remove p2p connection and disconnect data channel
 
@@ -53,5 +67,9 @@ class Channel:
         self.exit_user(self.users[user_uid])
 
     def broadcast(self, line):
-        for user in self.users.values():
+        for user in self.user_list:
             user.gevent_queue.put(line)
+
+    def broadcast_by_relay_server(self, relay_server, data):
+        for user in self.user_list:
+            relay_server.socket.sendto(data, user.public_address)

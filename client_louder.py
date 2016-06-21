@@ -1,7 +1,8 @@
-import sys
 import json
-import time
 import socket
+import struct
+import sys
+import time
 
 BUF_SIZE = 1024
 
@@ -33,8 +34,13 @@ sock_channel_data = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:
     word = '{}{}'.format(keyword, count)
-    data = '{} {}'.format(guid, word)
-    sock_channel_data.sendto(data.encode('utf-8'), address_data_channel)
+    data = b''.join([
+        guid.encode('utf8'),
+        struct.pack('i', 0),
+        struct.pack('i', 0),
+        word.encode('utf8')
+    ])
+    sock_channel_data.sendto(data, address_data_channel)
     print('[data] sent')
 
     time.sleep(1)

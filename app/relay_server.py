@@ -31,7 +31,7 @@ class RelayServer(DatagramServer):
         self.control_server = control_server
 
     def handle(self, data, address):
-        if len(data) < 36:
+        if len(data) < 40:
             # skip invalid datagram
             return
 
@@ -44,12 +44,11 @@ class RelayServer(DatagramServer):
             return
 
         if sender.public_address is None:
-            sender.public_address = address
+            sender.public_address = address[0]
 
         broadcast_data = msg.to_bytes(sender.uid)
 
         users = sender.owner_app.users.values()
         for user in users:
             if user.public_address:
-                print('send to {} : {}'.format(sender.public_address, broadcast_data))
                 self.socket.sendto(broadcast_data, user.public_address)

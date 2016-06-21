@@ -1,9 +1,7 @@
 import json
 
 import gevent
-from app.message_types import REQUEST_TYPE_SIGN_OUT, REQUEST_TYPE_ENTER_CHANNEL, REQUEST_TYPE_EXIT_CHANNEL, \
-    REQUEST_TYPE_PING, REQUEST_TYPE_P2P_CONNECT_SUCCESS, REQUEST_TYPE_P2P_CONNECT_FAIL, REQUEST_TYPE_MIC_ON, \
-    REQUEST_TYPE_MIC_OFF, REQUEST_TYPE_CHECK_EXIST_CHANNEL
+from app.message_types import *
 from gevent.queue import Queue
 
 
@@ -24,7 +22,6 @@ class User:
         self.greenlets = [gevent.spawn(self.reader),
                           gevent.spawn(self.writer)]
 
-
     def reader(self):
         for line in self.sock_file:
             req = json.loads(line)
@@ -40,6 +37,10 @@ class User:
                 self.sock.sendall(encoded)
             elif isinstance(msg, bytes):
                 self.sock.sendall(msg)
+            elif isinstance(msg, dict):
+                data = json.dumps(msg)
+                encoded = data.encode('utf-8')
+                self.sock.sendall(encoded)
 
     def disconnect(self):
         if not self.closed:
@@ -80,6 +81,11 @@ class User:
         if channel_id not in self.owner_app.channels:
             # channel not found
             pass
+
+        self.private_address = req['private_udp_address']
+
+        while self.public_address is not None:
+            gevent.sleep(0)
 
         channel = self.owner_app.channels[channel_id]
         channel.enter_user(self)

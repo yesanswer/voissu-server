@@ -39,6 +39,8 @@ class Channel:
         self.users[new_user.uid] = new_user
         self.user_list = self.users.values()
 
+        self.user_seq[new_user.uid] = 0
+
         new_user.channel = self
         # TODO : support hole punching and make connection of data channel
 
@@ -46,6 +48,7 @@ class Channel:
         if exit_user.uid in self.users:
             if self.users[exit_user.uid].guid == exit_user.guid:
                 del (self.users[exit_user.uid])
+                del (self.user_seq[exit_user.uid])
 
         for user in self.users.values():
             user.gevent_queue.put({

@@ -77,18 +77,18 @@ class User:
         raise NotImplemented
 
     def handle_request_enter_channel(self, req):
+        while self.public_address is not None:
+            gevent.sleep(0)
+
         channel_id = req['channel_id']
+        self.owner_app.enter_channel(self)
         if channel_id not in self.owner_app.channels:
             # channel not found
             pass
 
         self.private_address = req['private_udp_address']
 
-        while self.public_address is not None:
-            gevent.sleep(0)
-
-        channel = self.owner_app.channels[channel_id]
-        channel.enter_user(self)
+        self.owner_app.enter_channel(channel_id, self)
 
     def handle_request_exit_channel(self, req):
         channel_id = req['channel_id']
@@ -96,5 +96,4 @@ class User:
             # channel not found
             pass
 
-        channel = self.owner_app.channels[channel_id]
-        channel.exit_user(self)
+        self.owner_app.exit_channel(channel_id, self)

@@ -1,3 +1,6 @@
+from app.channel import Channel
+
+
 class Application:
     def __init__(self, id):
         self.id = id
@@ -20,11 +23,23 @@ class Application:
 
         self.exit_user(self.users[user_uid])
 
-    def enter_channel(self):
-        pass
+    def enter_channel(self, channel_id, user):
+        if channel_id not in self.channels:
+            new_channel = Channel(channel_id, self)
+            self.channels[new_channel.id] = new_channel
 
-    def exit_channel(self):
-        pass
+        self.channels[channel_id].enter_user(user)
+
+    def exit_channel(self, channel_id, user):
+        if channel_id not in self.channels:
+            # error
+            pass
+
+        channel = self.channels[channel_id]
+        channel.exit_user(user)
+
+        if len(channel.users) == 0:
+            del (self.channels[channel.id])
 
     def get_user(self, uid):
         return self.users[uid] if uid in self.users else None

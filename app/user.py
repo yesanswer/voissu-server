@@ -71,7 +71,7 @@ class User:
         elif request_type == REQUEST_TYPE_MIC_OFF:
             pass
         elif request_type == REQUEST_TYPE_CHECK_EXIST_CHANNEL:
-            pass
+            self.handle_request_check_exist_channel(req)
 
     def handle_request_sign_out(self, req):
         raise NotImplemented
@@ -97,3 +97,12 @@ class User:
             pass
 
         self.owner_app.exit_channel(channel_id, self)
+
+    def handle_request_check_exist_channel(self, req):
+        channel_id = req['channel_id']
+
+        is_exist = self.owner_app.check_exist_channel(channel_id)
+        self.gevent_queue.put({
+            'type': RESPONSE_TYPE_CHECK_EXIST_CHANNEL,
+            'exist': is_exist
+        })

@@ -44,6 +44,9 @@ class Application:
     def get_user(self, uid):
         return self.users[uid] if uid in self.users else None
 
+    def check_exist_channel(self, channel_id):
+        return channel_id in self.channels
+
     def broadcast(self, line):
         for user in self.users.values():
             user.gevent_queue.put(line)

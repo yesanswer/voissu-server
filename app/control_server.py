@@ -20,7 +20,7 @@ class ControlServer:
 
     def gatekeeper(self, socket, address):
         print('{} connected'.format(address))
-        sock_file = socket.makefile()
+        sock_file = socket.makefile(encoding='utf-8-sig')
 
         data_login = json.loads(sock_file.readline())
         app_id = data_login['app_id']

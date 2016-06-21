@@ -30,15 +30,21 @@ class User:
     def writer(self):
         while True:
             msg = self.gevent_queue.get()
-            print('[{}] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
 
             if isinstance(msg, str):
+                print('[{}] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
+
                 encoded = msg.encode('utf-8')
                 self.sock.sendall(encoded)
             elif isinstance(msg, bytes):
+                print('[{}] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
+
                 self.sock.sendall(msg)
             elif isinstance(msg, dict):
                 data = json.dumps(msg)
+
+                print('[{}] {} : {}'.format(self.owner_app.id, self.uid, data))
+
                 encoded = data.encode('utf-8')
                 self.sock.sendall(encoded)
 
@@ -81,10 +87,6 @@ class User:
             gevent.sleep(0)
 
         channel_id = req['channel_id']
-        self.owner_app.enter_channel(self)
-        if channel_id not in self.owner_app.channels:
-            # channel not found
-            pass
 
         self.private_address = req['private_udp_address']
 

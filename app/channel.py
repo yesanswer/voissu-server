@@ -12,15 +12,15 @@ class Channel:
         for user in self.users.values():
             message = {
                 'type': RESPONSE_TYPE_OTHER_USER_JOIN_CHANNEL,
-                'public_udp_address': new_user.public_address[0],
-                'private_udp_address': new_user.private_address[0]
+                'public_udp_address': new_user.public_address,
+                'private_udp_address': new_user.private_address
             }
             user.gevent_queue.put(message)
 
             other_users.append({
                 'uid': user.uid,
-                'public_udp_address': user.public_address[0],
-                'private_udp_address': user.private_address[0]
+                'public_udp_address': user.public_address,
+                'private_udp_address': user.private_address
             })
 
         new_user.gevent_queue.put({
@@ -31,12 +31,20 @@ class Channel:
         self.users[new_user.uid] = new_user
         # TODO : support hole punching and make connection of data channel
 
-    def exit_user(self, user):
-        if user.uid in self.users:
-            if self.users[user.uid].guid == user.guid:
-                del (self.users[user.uid])
+    def exit_user(self, exit_user):
+        if exit_user.uid in self.users:
+            if self.users[exit_user.uid].guid == exit_user.guid:
+                del (self.users[exit_user.uid])
+
+        for user in self.users.values():
+            user.gevent_queue.put({
+                'type': RESPONSE_TYPE_EXIT_CHANNEL
+            })
+
+        exit_user.public_address = None
+        exit_user.private_address = None
+
         # TODO : remove p2p connection and disconnect data channel
-        pass
 
     def exit_user_by_id(self, user_uid):
         if user_uid not in self.users:

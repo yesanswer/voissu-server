@@ -41,7 +41,7 @@ class User:
 
                 self.sock.sendall(msg)
             elif isinstance(msg, dict):
-                data = json.dumps(msg)
+                data = '{}\n'.format(json.dumps(msg))
 
                 print('[{}] {} : {}'.format(self.owner_app.id, self.uid, data))
 

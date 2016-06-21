@@ -3,6 +3,7 @@ import uuid
 
 import gevent
 from app.application import Application
+from app.message_types import *
 from app.user import User
 from gevent.pool import Pool
 from gevent.server import StreamServer
@@ -41,6 +42,7 @@ class ControlServer:
 
         data_response_login = {
             'success': True,
+            'type': RESPONSE_TYPE_SIGN_IN,
             'guid': new_user_guid,
             'relay_server': {
                 'ip': '127.0.0.1',

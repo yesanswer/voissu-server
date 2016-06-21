@@ -83,8 +83,8 @@ class User:
         raise NotImplemented
 
     def handle_request_enter_channel(self, req):
-        while self.public_address is not None:
-            gevent.sleep(0)
+        while self.public_address is None:
+            gevent.sleep(0.1)
 
         channel_id = req['channel_id']
 

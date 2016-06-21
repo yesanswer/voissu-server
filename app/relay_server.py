@@ -1,4 +1,28 @@
+import struct
+
 from gevent.server import DatagramServer
+
+
+class UdpMessage:
+    def __init__(self, data):
+        self.guid = data[:36].decode('utf-8')
+        self.kind = struct.unpack('i', data[36:40])[0]
+
+        if self.kind == 0:
+            self.seq = 0
+            self.broadcast_data = b''
+        else:
+            self.seq = struct.unpack('i', data[40:44])[0]
+            self.broadcast_data = data[44:]
+
+    def to_bytes(self, sender_uid):
+        data = b''.join([
+            ('%-36s' % sender_uid).encode('utf8'),
+            struct.pack('i', 0),
+            struct.pack('i', self.seq),
+            self.broadcast_data
+        ])
+        return data
 
 
 class RelayServer(DatagramServer):
@@ -11,20 +35,21 @@ class RelayServer(DatagramServer):
             # skip invalid datagram
             return
 
-        print('{}: got {}'.format(address, data.decode('utf-8')))
+        print('{}: got {}'.format(address, data))
 
-        guid = data[:36].decode('utf-8')
-        if guid not in self.control_server.users:
+        msg = UdpMessage(data)
+
+        sender = self.control_server.get_user_by_guid(msg.guid)
+        if sender is None:
             return
 
-        broadcast_data = data[37:]
+        if sender.public_address is None:
+            sender.public_address = address
 
-        sender = self.control_server.users[guid]
-        if not hasattr(sender, 'data_channel_address'):
-            sender.data_channel_address = address
+        broadcast_data = msg.to_bytes(sender.uid)
 
-        app = sender.owner_app
-        users = app.users.values()
+        users = sender.owner_app.users.values()
         for user in users:
-            if hasattr(user, 'data_channel_address'):
-                self.socket.sendto(broadcast_data, user.data_channel_address)
+            if user.public_address:
+                print('send to {} : {}'.format(sender.public_address, broadcast_data))
+                self.socket.sendto(broadcast_data, user.public_address)

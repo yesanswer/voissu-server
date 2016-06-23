@@ -87,9 +87,8 @@ class User:
             self.handle_request_enter_channel(req)
         elif request_type == REQUEST_TYPE_EXIT_CHANNEL:
             self.handle_request_exit_channel(req)
-        elif request_type == REQUEST_TYPE_P2P_CONNECT_SUCCESS:
-            pass
-        elif request_type == REQUEST_TYPE_P2P_CONNECT_FAIL:
+        elif request_type == REQUEST_TYPE_P2P_STATUS_SYNC:
+            self.handle_request_p2p_status_sync(req)
             pass
         elif request_type == REQUEST_TYPE_MIC_ON:
             pass
@@ -120,6 +119,12 @@ class User:
             pass
 
         self.owner_app.exit_channel(channel_id, self)
+
+    def handle_request_p2p_status_sync(self, req):
+        if not self.owner_channel:
+            return
+
+        self.owner_channel.p2p_status_sync(self, req['users'])
 
     def handle_request_check_exist_channel(self, req):
         channel_id = req['channel_id']

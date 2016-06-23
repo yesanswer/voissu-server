@@ -7,6 +7,7 @@ class Channel:
         self.app = app
         self.users = dict()
         self.user_seq = dict()
+        self.user_p2p_unconnected = dict()
 
     def enter_user(self, new_user):
         other_users = []
@@ -77,6 +78,14 @@ class Channel:
             raise KeyError
 
         self.exit_user(self.users[user_uid])
+
+    def p2p_status_sync(self, user, uid_list):
+        unconnected_users = []
+        for user in self.users.values():
+            if user.uid not in uid_list:
+                unconnected_users.append(user)
+
+        self.user_p2p_unconnected[user.uid] = unconnected_users
 
     def broadcast(self, line):
         for user in self.users.values():

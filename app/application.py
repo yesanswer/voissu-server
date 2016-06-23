@@ -12,12 +12,16 @@ class Application:
         print('[system][{}] new connected user uid : {}'.format(self.id, user.uid))
 
     def exit_user(self, user):
+        if user.uid not in self.users or self.users[user.uid].guid != user.guid:
+            return
+
+        print('exit_user - {}'.format(user.uid))
+
         if user.owner_channel:
+            print('user joined channel : {}'.format(user.owner_channel.id))
             user.owner_channel.exit_user(user)
 
-        if user.uid in self.users:
-            if self.users[user.uid].guid == user.guid:
-                del (self.users[user.uid])
+        del (self.users[user.uid])
 
         user.disconnect()
 

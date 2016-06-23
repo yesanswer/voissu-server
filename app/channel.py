@@ -41,7 +41,7 @@ class Channel:
 
         self.user_seq[new_user.uid] = 0
 
-        new_user.channel = self
+        new_user.owner_channel = self
         # TODO : support hole punching and make connection of data channel
 
     def exit_user(self, exit_user):
@@ -60,7 +60,7 @@ class Channel:
         exit_user.public_address = None
         exit_user.private_address = None
 
-        exit_user.channel = None
+        exit_user.owner_channel = None
 
         # TODO : remove p2p connection and disconnect data channel
 

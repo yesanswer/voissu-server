@@ -26,6 +26,8 @@ class User:
 
     def reader(self):
         for line in self.sock_file:
+            print('[{}][user.reader] {} : {}'.format(self.owner_app.id, self.uid, line.rstrip()))
+
             req = json.loads(line)
             self.handle_request(req)
 
@@ -34,18 +36,18 @@ class User:
             msg = self.gevent_queue.get()
 
             if isinstance(msg, str):
-                print('[{}] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
+                print('[{}][user.writer] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
 
                 encoded = msg.encode('utf-8')
                 self.sock.sendall(encoded)
             elif isinstance(msg, bytes):
-                print('[{}] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
+                print('[{}][user.writer] {} : {}'.format(self.owner_app.id, self.uid, msg.rstrip()))
 
                 self.sock.sendall(msg)
             elif isinstance(msg, dict):
                 data = '{}\n'.format(json.dumps(msg))
 
-                print('[{}] {} : {}'.format(self.owner_app.id, self.uid, data))
+                print('[{}][user.writer] {} : {}'.format(self.owner_app.id, self.uid, data))
 
                 encoded = data.encode('utf-8')
                 self.sock.sendall(encoded)

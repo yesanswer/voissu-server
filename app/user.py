@@ -14,13 +14,15 @@ class User:
         self.gevent_queue = Queue()
         self.owner_app = owner_app
         self.owner_channel = None
+        self.receive_pong = False
 
         # 아래의 두 주소는 각각 공인, 사설 udp 주소
         self.public_address = None
         self.private_address = None
         self.closed = False
         self.greenlets = [gevent.spawn(self.reader),
-                          gevent.spawn(self.writer)]
+                          gevent.spawn(self.writer),
+                          gevent.spawn(self.ping_pong)]
 
     def reader(self):
         for line in self.sock_file:
@@ -47,6 +49,21 @@ class User:
 
                 encoded = data.encode('utf-8')
                 self.sock.sendall(encoded)
+
+    def ping_pong(self):
+        while True:
+            gevent.sleep(5)
+
+            self.receive_pong = False
+            self.gevent_queue.put({
+                'type': REQUEST_TYPE_PING
+            })
+
+            gevent.sleep(5)
+
+            if not self.receive_pong:
+                self.owner_app.exit_user(self)
+                break
 
     def disconnect(self):
         if not self.closed:
@@ -78,6 +95,8 @@ class User:
             pass
         elif request_type == REQUEST_TYPE_CHECK_EXIST_CHANNEL:
             self.handle_request_check_exist_channel(req)
+        elif request_type == RESPONSE_TYPE_PONG:
+            self.receive_pong = True
 
     def handle_request_sign_out(self, req):
         raise NotImplemented

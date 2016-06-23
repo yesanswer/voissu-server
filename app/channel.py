@@ -47,7 +47,7 @@ class Channel:
         self.print_users()
 
     def exit_user(self, exit_user):
-        if exit_user.uid not in self.users or self.users[exit_user.uid].guid == exit_user.guid:
+        if exit_user.uid not in self.users or self.users[exit_user.uid].guid != exit_user.guid:
             return
 
         del (self.users[exit_user.uid])

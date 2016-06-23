@@ -41,7 +41,10 @@ class Channel:
         self.user_seq[new_user.uid] = 0
 
         new_user.owner_channel = self
+
         # TODO : support hole punching and make connection of data channel
+
+        self.print_users()
 
     def exit_user(self, exit_user):
         if exit_user.uid not in self.users or self.users[exit_user.uid].guid == exit_user.guid:
@@ -66,6 +69,8 @@ class Channel:
         })
 
         # TODO : remove p2p connection and disconnect data channel
+
+        self.print_users()
 
     def exit_user_by_id(self, user_uid):
         if user_uid not in self.users:

@@ -47,7 +47,7 @@ class User:
             elif isinstance(msg, dict):
                 data = '{}\n'.format(json.dumps(msg))
 
-                print('[{}][user.writer] {} : {}'.format(self.owner_app.id, self.uid, data))
+                print('[{}][user.writer] {} : {}'.format(self.owner_app.id, self.uid, data.rstrip()))
 
                 encoded = data.encode('utf-8')
                 self.sock.sendall(encoded)

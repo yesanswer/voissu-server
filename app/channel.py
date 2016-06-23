@@ -85,3 +85,9 @@ class Channel:
 
         for user in self.user_list:
             relay_server.socket.sendto(broadcast_data, user.public_address)
+
+    def print_users(self):
+        print('-- [{}] users --'.format(self.id))
+        for user in self.users.values():
+            print('guid:{} uid:{}'.format(user.guid, user.uid))
+        print('---')

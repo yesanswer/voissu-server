@@ -45,22 +45,28 @@ class Channel:
         # TODO : support hole punching and make connection of data channel
 
     def exit_user(self, exit_user):
-        if exit_user.uid in self.users:
-            if self.users[exit_user.uid].guid == exit_user.guid:
-                del (self.users[exit_user.uid])
-                del (self.user_seq[exit_user.uid])
+        if exit_user.uid not in self.users or self.users[exit_user.uid].guid == exit_user.guid:
+            return
 
-        for user in self.users.values():
-            user.gevent_queue.put({
-                'type': RESPONSE_TYPE_EXIT_CHANNEL
-            })
+        del (self.users[exit_user.uid])
+        del (self.user_seq[exit_user.uid])
 
         self.user_list = self.users.values()
+
+        for user in self.user_list:
+            user.gevent_queue.put({
+                'type': RESPONSE_TYPE_OTHER_USER_EXIT_CHANNEL,
+                'exit_user_uid': exit_user.uid
+            })
 
         exit_user.public_address = None
         exit_user.private_address = None
 
         exit_user.owner_channel = None
+
+        exit_user.gevent_queue.put({
+            'type': RESPONSE_TYPE_EXIT_CHANNEL
+        })
 
         # TODO : remove p2p connection and disconnect data channel
 

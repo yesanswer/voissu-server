@@ -6,7 +6,6 @@ class Channel:
         self.id = id
         self.app = app
         self.users = dict()
-        self.user_list = None
         self.user_seq = dict()
 
     def enter_user(self, new_user):
@@ -37,7 +36,6 @@ class Channel:
         })
 
         self.users[new_user.uid] = new_user
-        self.user_list = self.users.values()
 
         self.user_seq[new_user.uid] = 0
 
@@ -51,9 +49,7 @@ class Channel:
         del (self.users[exit_user.uid])
         del (self.user_seq[exit_user.uid])
 
-        self.user_list = self.users.values()
-
-        for user in self.user_list:
+        for user in self.users.values():
             user.gevent_queue.put({
                 'type': RESPONSE_TYPE_OTHER_USER_EXIT_CHANNEL,
                 'exit_user_uid': exit_user.uid
@@ -77,7 +73,7 @@ class Channel:
         self.exit_user(self.users[user_uid])
 
     def broadcast(self, line):
-        for user in self.user_list:
+        for user in self.users.values():
             user.gevent_queue.put(line)
 
     def broadcast_by_relay_server(self, relay_server, sender, msg):
@@ -89,7 +85,7 @@ class Channel:
 
         broadcast_data = msg.to_bytes(sender.uid)
 
-        for user in self.user_list:
+        for user in self.users.values():
             relay_server.socket.sendto(broadcast_data, user.public_address)
 
     def print_users(self):

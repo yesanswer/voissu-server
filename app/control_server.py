@@ -13,7 +13,6 @@ class ControlServer:
     def __init__(self):
         self.apps = {}
         self.pool = Pool(10000)
-        self.users = {}
 
         app1 = Application('app1')
         self.apps[app1.id] = app1
@@ -36,7 +35,6 @@ class ControlServer:
         prev_connected_user = application.get_user(uid)
         if prev_connected_user is not None:
             application.exit_user(prev_connected_user)
-            del(self.users[prev_connected_user.guid])
 
         new_user_guid = str(uuid.uuid4())
 
@@ -53,7 +51,6 @@ class ControlServer:
 
         new_user = User(uid=uid, guid=new_user_guid, sock=socket, sock_file=sock_file, owner_app=application)
         application.enter_user(new_user)
-        self.users[new_user.guid] = new_user
 
         try:
             gevent.joinall(new_user.greenlets)
@@ -64,4 +61,9 @@ class ControlServer:
         StreamServer(('0.0.0.0', 10000), self.gatekeeper, spawn=self.pool).serve_forever()
 
     def get_user_by_guid(self, guid):
-        return self.users[guid] if guid in self.users else None
+        for app in self.apps.values():
+            for user in app.users.values():
+                if user.guid == guid:
+                    return user
+
+        return None

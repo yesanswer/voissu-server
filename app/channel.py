@@ -100,8 +100,14 @@ class Channel:
 
         broadcast_data = msg.to_bytes(sender.uid)
 
-        for user in self.users.values():
-            relay_server.socket.sendto(broadcast_data, user.public_address)
+        if msg.type >= 2:
+            if sender.uid not in self.user_p2p_unconnected:
+                return
+            for unconnected_user in self.user_p2p_unconnected[sender.uid]:
+                relay_server.socket.sendto(broadcast_data, unconnected_user.public_address)
+        else:
+            for user in self.users.values():
+                relay_server.socket.sendto(broadcast_data, user.public_address)
 
     def print_users(self):
         print('-- [{}] users --'.format(self.id))

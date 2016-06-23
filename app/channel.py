@@ -10,24 +10,25 @@ class Channel:
 
     def enter_user(self, new_user):
         other_users = []
-        for user in self.users.values():
+        for curr_user in self.users.values():
             message = {
                 'type': RESPONSE_TYPE_OTHER_USER_JOIN_CHANNEL,
                 'public_udp_address': {
                     'ip': new_user.public_address[0],
                     'port': new_user.public_address[1]
                 },
-                'private_udp_address': new_user.private_address
+                'private_udp_address': new_user.private_address,
+                'uid': new_user.uid
             }
-            user.gevent_queue.put(message)
+            curr_user.gevent_queue.put(message)
 
             other_users.append({
-                'uid': user.uid,
+                'uid': curr_user.uid,
                 'public_udp_address': {
-                    'ip': user.public_address[0],
-                    'port': user.public_address[1]
+                    'ip': curr_user.public_address[0],
+                    'port': curr_user.public_address[1]
                 },
-                'private_udp_address': user.private_address
+                'private_udp_address': curr_user.private_address
             })
 
         new_user.gevent_queue.put({

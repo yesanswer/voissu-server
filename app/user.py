@@ -113,12 +113,7 @@ class User:
         self.owner_app.enter_channel(channel_id, self)
 
     def handle_request_exit_channel(self, req):
-        channel_id = req['channel_id']
-        if channel_id not in self.owner_app.channels:
-            # channel not found
-            pass
-
-        self.owner_app.exit_channel(channel_id, self)
+        self.owner_app.exit_channel(self.owner_channel.id, self)
 
     def handle_request_p2p_status_sync(self, req):
         if not self.owner_channel:

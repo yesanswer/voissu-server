@@ -53,12 +53,16 @@ class Channel:
 
         del (self.users[exit_user.uid])
         del (self.user_seq[exit_user.uid])
+        del (self.user_p2p_unconnected[exit_user.uid])
 
         for user in self.users.values():
             user.gevent_queue.put({
                 'type': RESPONSE_TYPE_OTHER_USER_EXIT_CHANNEL,
                 'exit_user_uid': exit_user.uid
             })
+
+            if exit_user in self.user_p2p_unconnected[user.uid]:
+                self.user_p2p_unconnected[user.uid].remove(exit_user)
 
         exit_user.public_address = None
         exit_user.private_address = None

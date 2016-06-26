@@ -15,6 +15,9 @@ class UdpMessage:
             self.seq = struct.unpack('i', data[40:44])[0]
             self.broadcast_data = data[44:]
 
+    def __repr__(self):
+        return '{} {} {} {}'.format(self.guid, self.kind, self.seq, self.broadcast_data)
+
     def to_bytes(self, sender_uid):
         data = b''.join([
             ('%-36s' % sender_uid).encode('utf8'),
@@ -35,9 +38,9 @@ class RelayServer(DatagramServer):
             # skip invalid datagram
             return
 
-        print('{}: got {}'.format(address, data))
-
         msg = UdpMessage(data)
+
+        print('{} send : {}'.format(address, msg))
 
         sender = self.control_server.get_user_by_guid(msg.guid)
         if sender is None:

@@ -50,5 +50,5 @@ class RelayServer(DatagramServer):
             # skip broadcasting if this message is login message
             return
 
-        if sender.channel:
-            sender.channel.broadcast_by_relay_server(self, sender, msg)
+        if sender.owner_channel:
+            sender.owner_channel.broadcast_by_relay_server(self, sender, msg)

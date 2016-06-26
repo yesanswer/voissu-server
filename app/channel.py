@@ -100,7 +100,7 @@ class Channel:
 
         broadcast_data = msg.to_bytes(sender.uid)
 
-        if msg.type >= 2:
+        if msg.kind >= 2:
             if sender.uid not in self.user_p2p_unconnected:
                 return
             for unconnected_user in self.user_p2p_unconnected[sender.uid]:

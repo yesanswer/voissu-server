@@ -64,6 +64,7 @@ class User:
             gevent.sleep(5)
 
             if not self.receive_pong:
+                print('user {} not sent pong, so exit this user'.format(self.uid))
                 self.owner_app.exit_user(self)
                 break
 

@@ -40,11 +40,11 @@ class RelayServer(DatagramServer):
 
         msg = UdpMessage(data)
 
-        print('{} send : {}'.format(address, msg))
-
         sender = self.control_server.get_user_by_guid(msg.guid)
         if sender is None:
             return
+
+        print('{} send : {}'.format(sender.uid, msg))
 
         if sender.public_address is None:
             sender.public_address = address

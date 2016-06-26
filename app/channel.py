@@ -38,8 +38,8 @@ class Channel:
         })
 
         self.users[new_user.uid] = new_user
-
         self.user_seq[new_user.uid] = 0
+        self.user_p2p_unconnected[new_user.uid] = []
 
         new_user.owner_channel = self
 

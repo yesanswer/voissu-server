@@ -108,6 +108,7 @@ class Channel:
             if sender.uid not in self.user_p2p_unconnected:
                 return
             for unconnected_user in self.user_p2p_unconnected[sender.uid]:
+                print('{} -> {} : {}'.format(sender.uid, unconnected_user.uid, broadcast_data))
                 relay_server.socket.sendto(broadcast_data, unconnected_user.public_address)
         else:
             for user in self.users.values():

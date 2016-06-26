@@ -21,7 +21,7 @@ class UdpMessage:
     def to_bytes(self, sender_uid):
         data = b''.join([
             ('%-36s' % sender_uid).encode('utf8'),
-            struct.pack('i', 0),
+            struct.pack('i', self.kind),
             struct.pack('i', self.seq),
             self.broadcast_data
         ])
